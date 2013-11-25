@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    color.cpp \
+    segment.cpp \
+    colorgroup.cpp \
+    segmentedimage.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    color.h \
+    segment.h \
+    colorgroup.h \
+    segmentedimage.h
 
 FORMS    += mainwindow.ui
