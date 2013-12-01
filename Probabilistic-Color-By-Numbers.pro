@@ -17,12 +17,16 @@ SOURCES += main.cpp\
     color.cpp \
     segment.cpp \
     colorgroup.cpp \
-    segmentedimage.cpp
+    segmentedimage.cpp \
+    distribution.cpp \
+    statisticscollector.cpp
 
 HEADERS  += mainwindow.h \
     color.h \
     segment.h \
     colorgroup.h \
-    segmentedimage.h
+    segmentedimage.h \
+    distribution.h \
+    statisticscollector.h
 
 FORMS    += mainwindow.ui
