@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "segmentedimage.h"
+#include "statisticscollector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,8 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // DEBUG
-    SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1198080_t.png");
-    segImg.segment();
+    /*SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1198080_t.png");
+    segImg.segment();*/
+
+    StatisticsCollector sc;
+    sc.collectData("../Probabilistic-Color-By-Numbers/data/");
 }
 
 MainWindow::~MainWindow()

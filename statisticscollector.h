@@ -8,8 +8,9 @@
 class StatisticsCollector
 {
 private:
-    std::map<std::string, AbsDistribution> distributions;
+    std::vector<AbsDistribution*> distributions;
 
+    int getDir(std::string dir, std::vector<std::string> &files);
 public:
     StatisticsCollector();
 

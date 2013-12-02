@@ -1,11 +1,89 @@
 #include "statisticscollector.h"
 
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
+#include <vector>
+#include <string>
+#include <map>
+#include <iostream>
+#include "segmentedimage.h"
+#include "distribution.h"
+#include "segment.h"
+
+int StatisticsCollector::getDir(std::string dir, std::vector<std::string> &files)
+{
+    DIR *dp;
+    struct dirent *dirp;
+    if((dp  = opendir(dir.c_str())) == NULL) {
+        std::cout << "Error(" << errno << ") opening " << dir << std::endl;
+        return errno;
+    }
+
+    while ((dirp = readdir(dp)) != NULL) {
+        files.push_back(std::string(dirp->d_name));
+    }
+    closedir(dp);
+    return 0;
+}
+
 StatisticsCollector::StatisticsCollector()
 {
 }
 
 void StatisticsCollector::collectData(std::string directory)
 {
+    std::vector<std::string> files;
+    std::vector<SegmentedImage> imagesList;
+    SegmentedImage img;
+    std::vector<std::pair<char, Numeric> > props;
+    int j, n;
 
+    if (!this->getDir(directory, files)) {
 
+        this->distributions.clear();
+        bool first=true;
+        // Itera nas imagens do diretorio
+        for (unsigned int i = 0;i < files.size();i++) {
+            // Se for imagem png
+            if (files[i].rfind(".png") != std::string::npos) {
+                std::cout << files[i] << std::endl;
+
+                // Carrega imagem
+                img.load(QString((directory + files[i]).c_str()));
+                // Segmenta ela
+                img.segment();
+
+                // Captura as propriedades e adiciona às devidas distribuiçoes
+                props = img.getProperties();
+                // Se for primeiro loop inicializa as distribuiçoes
+                if (first) {
+                    first = false;
+                    for (j=0, n=props.size(); j<n; j++) {
+                        if (props[j].first == 'i') {
+                            this->distributions.push_back(new Distribution<int>());
+                        } else if (props[j].first == 'd') {
+                            this->distributions.push_back(new Distribution<double>());
+                        }
+                    }
+                }
+
+                for (j=0, n=props.size(); j<n; j++) {
+
+                    if (props[j].first == 'i') {
+
+                        (static_cast<Distribution<int>*>(this->distributions[j]))->add(props[j].second.i);
+                    } else if (props[j].first == 'd') {
+
+                        (static_cast<Distribution<double>*>(this->distributions[j]))->add(props[j].second.d);
+                    }
+                }
+
+                // Adiciona em uma lista de imagens para depois calcular o score
+                imagesList.push_back(img);
+            }
+        }
+
+        // Itera nas imagens já carregadas para calcular os scores
+    }
 }

@@ -18,7 +18,6 @@ SOURCES += main.cpp\
     segment.cpp \
     colorgroup.cpp \
     segmentedimage.cpp \
-    distribution.cpp \
     statisticscollector.cpp
 
 HEADERS  += mainwindow.h \

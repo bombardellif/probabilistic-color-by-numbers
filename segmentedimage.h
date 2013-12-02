@@ -11,6 +11,7 @@ class SegmentedImage : public QImage
 {
 private:
     std::map<int, ColorGroup> colorGroups;
+    std::map<int, ColorGroup*> mainColorGroups;
 
     void labelSegment(uint *pixels, int pos, Segment &seg, bool *notVisited);
 public:
@@ -19,6 +20,7 @@ public:
     SegmentedImage(const QString &fileName, const char *format = 0);
 
     void segment();
+    std::vector<std::pair<char, Numeric> > getProperties();
 };
 
 #endif // SEGMENTEDIMAGE_H

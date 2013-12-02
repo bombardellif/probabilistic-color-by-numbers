@@ -78,6 +78,11 @@ void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *not
     }
     // FIM: moda da vizinhança 8x8
 
+    // Se segmento ainda nao tem pixel, deve setar a cor para a moda da vizinhança-8x8
+    if (!seg.count()) {
+        seg.setColor(QColor(modeVal));
+    }
+
     if (QColor(modeVal) == seg.getColor()) {
         notVisited[pos] = false;
         seg.addPixel(pos);
@@ -90,7 +95,7 @@ void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *not
     }
 }
 
-#include <iostream>
+
 void SegmentedImage::segment()
 {
     uint *pixels = (uint*)this->bits();
@@ -101,29 +106,54 @@ void SegmentedImage::segment()
 
     memset(&notVisited, true, n);
 
+    //QImage debug(this->width(), this->height(), QImage::Format_RGB32);
+
     for (int i=0; i<n; i++) {
 
         if (notVisited[i]) {
-            if (this->colorGroups.count(pixels[i]))
-                this->colorGroups[pixels[i]].addSegment(seg = Segment(QColor(pixels[i])));
-            else
-                this->colorGroups[pixels[i]] = ColorGroup();
+            seg = Segment();
 
             this->labelSegment(pixels, i, seg, notVisited);
+
+            if (!this->colorGroups.count(seg.getColor().rgb()))
+                this->colorGroups[seg.getColor().rgb()] = ColorGroup();
+
+            this->colorGroups[seg.getColor().rgb()].addSegment(seg);
         }
     }
 
-    // DEBUG :
+    // Separa os segmentos que representam menos de 0,05% da area da imagem
     float noiseThreshold = (this->width() * this->height()) * 0.0005;
     std::map<int, ColorGroup>::iterator iter;
     for (iter = this->colorGroups.begin(); iter!=this->colorGroups.end(); iter++) {
-        if (iter->second.count() >= noiseThreshold)
-            std::cout <<
-                QColor(iter->first).red() << '.' <<
-                QColor(iter->first).green() << '.' <<
-                QColor(iter->first).blue() << " => " <<
-                iter->second.count() <<
-                std::endl;
+
+        iter->second.separateNoise(noiseThreshold);
+
+        if (iter->second.countMain()) {
+            this->mainColorGroups[iter->first] = &iter->second;
+        }
     }
-    std::cout << n << std::endl;
+}
+
+std::vector<std::pair<char, Numeric> > SegmentedImage::getProperties()
+{
+    std::vector<std::pair<char, Numeric> > props, cgProps;
+    std::map<int, ColorGroup*>::iterator cgIter;
+
+    int j, n, i=0;
+
+    // Itera nos color groups
+    for (cgIter = this->mainColorGroups.begin(); cgIter != this->mainColorGroups.end(); cgIter++) {
+
+        // Obtem propriedades do color group
+        cgProps = cgIter->second->getProperties();
+
+        // Itera nas propriedades do color group
+        for (j=0, n=cgProps.size(); j<n; j++) {
+            props.push_back(cgProps[j]);
+            i++;
+        }
+    }
+
+    return props;
 }
