@@ -56,3 +56,8 @@ std::vector<std::pair<char, Numeric> > &ColorGroup::getProperties()
 
     return this->properties;
 }
+
+void ColorGroup::transformColor(QColor color) {
+    for (int i=0; i < this->segments.size(); i++)
+        this->segments[i].setColor(color, true);
+}

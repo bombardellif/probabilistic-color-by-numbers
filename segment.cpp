@@ -9,9 +9,15 @@ Segment::Segment()
 {
 }
 
-Segment::Segment(QColor color)
+Segment::Segment(QImage *image)
+{
+    this->image = image;
+}
+
+Segment::Segment(QColor color, QImage *image)
 {
     this->color = color;
+    this->image = image;
 }
 
 Color& Segment::getColor()
@@ -19,9 +25,14 @@ Color& Segment::getColor()
     return this->color;
 }
 
-void Segment::setColor(QColor color)
+void Segment::setColor(QColor color, bool colorPixels)
 {
     this->color = color;
+    if (colorPixels) {
+        for (int i=0 ; i < pixels.size(); i++) {
+            ((uint*)this->image->bits())[this->pixels[i]] = color.rgb();
+        }
+    }
 }
 
 void Segment::addPixel(int pixelPos)

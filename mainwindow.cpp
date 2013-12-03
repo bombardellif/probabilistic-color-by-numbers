@@ -11,11 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // DEBUG
-    /*SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1198080_t.png");
-    segImg.segment();*/
+    SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1537398_t.png");//1198080_t.png");
+    segImg.segment();
 
-    StatisticsCollector sc;
-    sc.collectData("../Probabilistic-Color-By-Numbers/data/");
+    /*StatisticsCollector sc;
+    sc.collectData("../Probabilistic-Color-By-Numbers/data/");*/
 }
 
 MainWindow::~MainWindow()

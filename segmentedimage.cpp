@@ -1,5 +1,7 @@
 #include "segmentedimage.h"
 
+#include <algorithm>
+#include <iostream>
 #include <map>
 
 SegmentedImage::SegmentedImage()
@@ -107,11 +109,10 @@ void SegmentedImage::segment()
     memset(&notVisited, true, n);
 
     //QImage debug(this->width(), this->height(), QImage::Format_RGB32);
-
     for (int i=0; i<n; i++) {
 
         if (notVisited[i]) {
-            seg = Segment();
+            seg = Segment(this);
 
             this->labelSegment(pixels, i, seg, notVisited);
 
@@ -119,10 +120,15 @@ void SegmentedImage::segment()
                 this->colorGroups[seg.getColor().rgb()] = ColorGroup();
 
             this->colorGroups[seg.getColor().rgb()].addSegment(seg);
+            /*
+            if (seg.getColor().rgb() == 0xff333333){
+                this->colorGroups[seg.getColor().rgb()].transformColor(QColor(255, 0, 0));
+            }*/
         }
     }
-
+/*
     // Separa os segmentos que representam menos de 0,05% da area da imagem
+    //int debug = 0;
     float noiseThreshold = (this->width() * this->height()) * 0.0005;
     std::map<int, ColorGroup>::iterator iter;
     for (iter = this->colorGroups.begin(); iter!=this->colorGroups.end(); iter++) {
@@ -131,8 +137,12 @@ void SegmentedImage::segment()
 
         if (iter->second.countMain()) {
             this->mainColorGroups[iter->first] = &iter->second;
+            iter->second.transformColor(QColor(std::min(debug,255), 0, 0));
+            debug += 20;
         }
     }
+*/
+    this->save("testeColor.png");
 }
 
 std::vector<std::pair<char, Numeric> > SegmentedImage::getProperties()

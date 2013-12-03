@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <QImage>
 #include "color.h"
 
 union Numeric
@@ -14,6 +15,7 @@ union Numeric
 class Segment
 {
 private:
+    QImage *image;
     std::vector<int> pixels;
     Color color;
     std::vector<std::pair<char, Numeric> >properties;
@@ -21,10 +23,11 @@ private:
     double relativeSize();
 public:
     Segment();
-    Segment(QColor color);
+    Segment(QImage *image);
+    Segment(QColor color, QImage *image);
 
     Color& getColor();
-    void setColor(QColor color);
+    void setColor(QColor color, bool colorPixels=false);
     void addPixel(int pixelPos);
     int count();
     std::vector<std::pair<char, Numeric> > &getProperties();

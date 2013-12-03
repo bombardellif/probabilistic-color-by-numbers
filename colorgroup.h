@@ -15,6 +15,7 @@ public:
     ColorGroup();
 
     void addSegment(Segment &seg);
+    void transformColor(QColor color);
     int count();
     int countMain();
     void separateNoise(float noiseThreshold);
