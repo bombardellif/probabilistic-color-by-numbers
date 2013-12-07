@@ -6,6 +6,7 @@
 #include <vector>
 #include "segment.h"
 #include "colorgroup.h"
+#include "distribution.h"
 
 class SegmentedImage : public QImage
 {
@@ -25,6 +26,7 @@ public:
 
     std::map<int, ColorGroup*>& getMainColorGroups();
     void deepCopySegmentation(SegmentedImage from);
+    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution);
 };
 
 #endif // SEGMENTEDIMAGE_H

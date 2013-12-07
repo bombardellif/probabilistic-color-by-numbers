@@ -1,6 +1,5 @@
 #include "segmentedimage.h"
 
-#include <algorithm>
 #include <iostream>
 #include <map>
 
@@ -215,4 +214,16 @@ void SegmentedImage::deepCopySegmentation(SegmentedImage from)
         this->colorGroups[cgTo->getColor().rgb()] = *cgTo;
         this->mainColorGroups[cgTo->getColor().rgb()] = &this->colorGroups[cgTo->getColor().rgb()];
     }
+}
+
+double SegmentedImage::score(std::vector<std::pair<char, AbsDistribution *> > &distribution)
+{
+    double prod = 1;
+    int index = 0;
+
+    for (int i=0, n=this->mainColorGroups.size(); i<n; i++) {
+        prod *= this->mainColorGroups[i]->score(distribution, index);
+    }
+
+    return prod;
 }

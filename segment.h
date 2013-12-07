@@ -5,6 +5,7 @@
 #include <string>
 #include <QImage>
 #include "color.h"
+#include "distribution.h"
 
 union Numeric
 {
@@ -33,6 +34,8 @@ public:
     std::vector<std::pair<char, Numeric> > &getProperties();
     void deepCopyTo(Segment *to);
     void setPixels(std::vector<int> &pixels);
+
+    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution, int &index);
 };
 
 #endif // SEGMENT_H

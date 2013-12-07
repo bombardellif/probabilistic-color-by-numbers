@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "segment.h"
+#include "distribution.h"
 
 class ColorGroup
 {
@@ -27,6 +28,8 @@ public:
     void separateNoise(float noiseThreshold);
     std::vector<std::pair<char, Numeric> > &getProperties();
     void deepCopyTo(ColorGroup *to);
+
+    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution, int &index);
 };
 
 #endif // COLORGROUP_H

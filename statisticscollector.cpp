@@ -39,6 +39,7 @@ void StatisticsCollector::collectData(std::string directory)
     SegmentedImage *firstImage;
     std::vector<std::pair<char, Numeric> > props;
     int j, n;
+    unsigned int i, m;
 
     if (!this->getDir(directory, files)) {
 
@@ -46,7 +47,7 @@ void StatisticsCollector::collectData(std::string directory)
 
         bool first=true;
         // Itera nas imagens do diretorio
-        for (unsigned int i = 0;i < files.size();i++) {
+        for (i=0, m=files.size(); i<m ;i++) {
             // Se for imagem png
             if (files[i].rfind(".png") != std::string::npos) {
                 std::cout << files[i] << std::endl;
@@ -71,9 +72,9 @@ void StatisticsCollector::collectData(std::string directory)
                     first = false;
                     for (j=0, n=props.size(); j<n; j++) {
                         if (props[j].first == 'i') {
-                            this->distributions.push_back(new Distribution<int>());
+                            this->distributions.push_back(std::pair<char, Distribution<int>*>(props[j].first, new Distribution<int>()));
                         } else if (props[j].first == 'd') {
-                            this->distributions.push_back(new Distribution<double>());
+                            this->distributions.push_back(std::pair<char, Distribution<double>*>(props[j].first, new Distribution<double>()));
                         }
                     }
                 }
@@ -82,10 +83,10 @@ void StatisticsCollector::collectData(std::string directory)
 
                     if (props[j].first == 'i') {
 
-                        (static_cast<Distribution<int>*>(this->distributions[j]))->add(props[j].second.i);
+                        (static_cast<Distribution<int>*>(this->distributions[j].second))->add(props[j].second.i);
                     } else if (props[j].first == 'd') {
 
-                        (static_cast<Distribution<double>*>(this->distributions[j]))->add(props[j].second.d);
+                        (static_cast<Distribution<double>*>(this->distributions[j].second))->add(props[j].second.d);
                     }
                 }
 
@@ -97,5 +98,8 @@ void StatisticsCollector::collectData(std::string directory)
         std::cout << this->distributions.size() << std::endl;
 
         // Itera nas imagens já carregadas para calcular os scores
+        /*if (i=0, n=imagesList.size(); i<n; i++) {
+
+        }*/
     }
 }

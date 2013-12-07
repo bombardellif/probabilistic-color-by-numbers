@@ -1,5 +1,7 @@
 #include "colorgroup.h"
 
+#include <cmath>
+
 ColorGroup::ColorGroup()
 {
     this->image = NULL;
@@ -97,6 +99,8 @@ void ColorGroup::deepCopyTo(ColorGroup *to)
         this->mainSegments[i]->deepCopyTo(seg);
 
         to->addSegment(*seg);
+
+        delete seg;
     }
     // Copia para vetor main segments
     to->separateNoise(0);
@@ -104,6 +108,28 @@ void ColorGroup::deepCopyTo(ColorGroup *to)
     if (seg != NULL) {
         to->setColor(seg->getColor());
     }
+}
+
+double ColorGroup::score(std::vector<std::pair<char, AbsDistribution *> > &distribution, int &index)
+{
+    if (this->properties.size()) {
+        double segmentSum=0,
+                weight = 1 / this->properties.size();
+
+        // Calcula propriedades do color group (TODO)
+        double ownScore=0;
+
+        // Itera nos segmentos
+        for (int j=0, n=this->mainSegments.size(); j < n; j++) {
+
+            // Obtem scores do segmento
+            segmentSum = weight * this->mainSegments[j]->score(distribution, index);
+        }
+
+        return std::exp(ownScore + segmentSum);
+    }
+
+    return 0;
 }
 
 void ColorGroup::transformColor(QColor color) {
