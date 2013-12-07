@@ -34,14 +34,16 @@ StatisticsCollector::StatisticsCollector()
 void StatisticsCollector::collectData(std::string directory)
 {
     std::vector<std::string> files;
-    std::vector<SegmentedImage> imagesList;
-    SegmentedImage img;
+    std::vector<SegmentedImage*> imagesList;
+    SegmentedImage *img;
+    SegmentedImage *firstImage;
     std::vector<std::pair<char, Numeric> > props;
     int j, n;
 
     if (!this->getDir(directory, files)) {
 
         this->distributions.clear();
+
         bool first=true;
         // Itera nas imagens do diretorio
         for (unsigned int i = 0;i < files.size();i++) {
@@ -50,12 +52,20 @@ void StatisticsCollector::collectData(std::string directory)
                 std::cout << files[i] << std::endl;
 
                 // Carrega imagem
-                img.load(QString((directory + files[i]).c_str()));
-                // Segmenta ela
-                img.segment();
+                img = new SegmentedImage(QString((directory + files[i]).c_str()));
+
+                // Segmenta ela, caso seja a primeira
+                if (first) {
+                    img->segment();
+                    firstImage = img;
+                } else {
+                    img->deepCopySegmentation(*firstImage);
+                    img->save("testeColor.png");
+                }
 
                 // Captura as propriedades e adiciona às devidas distribuiçoes
-                props = img.getProperties();
+                props = img->getProperties();
+
                 // Se for primeiro loop inicializa as distribuiçoes
                 if (first) {
                     first = false;
@@ -83,6 +93,8 @@ void StatisticsCollector::collectData(std::string directory)
                 imagesList.push_back(img);
             }
         }
+
+        std::cout << this->distributions.size() << std::endl;
 
         // Itera nas imagens já carregadas para calcular os scores
     }

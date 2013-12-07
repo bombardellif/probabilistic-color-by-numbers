@@ -7,11 +7,13 @@ double Segment::relativeSize()
 
 Segment::Segment()
 {
+    this->pixels.clear();
 }
 
 Segment::Segment(QImage *image)
 {
     this->image = image;
+    this->pixels.clear();
 }
 
 Segment::Segment(QColor color, QImage *image)
@@ -50,9 +52,21 @@ std::vector<std::pair<char, Numeric> > &Segment::getProperties()
     // Calcula as propriedades do segmento
     this->properties.clear();
 
-    this->properties.push_back(std::pair<char, Numeric>());
+    this->properties.push_back(*(new std::pair<char, Numeric>()));
+
     this->properties[0].first = 'd';
     this->properties[0].second.d = this->relativeSize();
 
     return this->properties;
+}
+
+void Segment::deepCopyTo(Segment *to)
+{
+    to->setPixels(this->pixels);
+    to->setColor(QColor(to->pixels[0]));
+}
+
+void Segment::setPixels(std::vector<int> &pixels)
+{
+    this->pixels = pixels;
 }

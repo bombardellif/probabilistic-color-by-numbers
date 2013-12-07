@@ -97,6 +97,37 @@ void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *not
     }
 }
 
+void SegmentedImage::SeparateNoise()
+{
+    float noiseThreshold = (this->width() * this->height()) * 0.005;
+    std::map<int, ColorGroup>::iterator iter;
+    //int r=0,g=0,b=0;
+
+    for (iter = this->colorGroups.begin(); iter!=this->colorGroups.end(); iter++) {
+
+        iter->second.separateNoise(noiseThreshold);
+
+        if (iter->second.countMain()) {
+
+            this->mainColorGroups[iter->first] = &iter->second;
+
+            /*std::cout << r << '.' << g << '.' << b << std::endl;
+            if ((r += 10) > 250) {
+                r = 255;
+                if ((g += 10)>250) {
+                    g = 255;
+                    if ((b += 10)>250)
+                        b = 255;
+                }
+            }
+
+            iter->second.transformColor(QColor(r, g, b));*/
+
+        }
+    }
+
+    //this->save("testeColor.png");
+}
 
 void SegmentedImage::segment()
 {
@@ -126,23 +157,10 @@ void SegmentedImage::segment()
             }*/
         }
     }
-/*
+
     // Separa os segmentos que representam menos de 0,05% da area da imagem
-    //int debug = 0;
-    float noiseThreshold = (this->width() * this->height()) * 0.0005;
-    std::map<int, ColorGroup>::iterator iter;
-    for (iter = this->colorGroups.begin(); iter!=this->colorGroups.end(); iter++) {
+    this->SeparateNoise();
 
-        iter->second.separateNoise(noiseThreshold);
-
-        if (iter->second.countMain()) {
-            this->mainColorGroups[iter->first] = &iter->second;
-            iter->second.transformColor(QColor(std::min(debug,255), 0, 0));
-            debug += 20;
-        }
-    }
-*/
-    this->save("testeColor.png");
 }
 
 std::vector<std::pair<char, Numeric> > SegmentedImage::getProperties()
@@ -150,7 +168,7 @@ std::vector<std::pair<char, Numeric> > SegmentedImage::getProperties()
     std::vector<std::pair<char, Numeric> > props, cgProps;
     std::map<int, ColorGroup*>::iterator cgIter;
 
-    int j, n, i=0;
+    int j, n;
 
     // Itera nos color groups
     for (cgIter = this->mainColorGroups.begin(); cgIter != this->mainColorGroups.end(); cgIter++) {
@@ -161,9 +179,40 @@ std::vector<std::pair<char, Numeric> > SegmentedImage::getProperties()
         // Itera nas propriedades do color group
         for (j=0, n=cgProps.size(); j<n; j++) {
             props.push_back(cgProps[j]);
-            i++;
         }
     }
 
     return props;
+}
+
+std::map<int, ColorGroup*> &SegmentedImage::getMainColorGroups()
+{
+    return this->mainColorGroups;
+}
+
+/**
+ * Dada uma imagem origem, copia para este(this) objeto os mainColorGroups
+ * da origem, realizando uma deep copy, de maneira que copie tambem os segementos
+ * dos color groups.
+ *
+ * @brief SegmentedImage::deepCopySegmentation
+ * @param from  Imagem destino
+ */
+void SegmentedImage::deepCopySegmentation(SegmentedImage from)
+{
+    std::map<int, ColorGroup*> &cgFrom = from.getMainColorGroups();
+    std::map<int, ColorGroup*>::iterator iterCgFrom;
+    ColorGroup *cgTo;
+
+    this->colorGroups.clear();
+    this->mainColorGroups.clear();
+    for (iterCgFrom = cgFrom.begin(); iterCgFrom != cgFrom.end(); iterCgFrom++) {
+
+        cgTo = new ColorGroup(this);
+
+        iterCgFrom->second->deepCopyTo(cgTo);
+
+        this->colorGroups[cgTo->getColor().rgb()] = *cgTo;
+        this->mainColorGroups[cgTo->getColor().rgb()] = &this->colorGroups[cgTo->getColor().rgb()];
+    }
 }

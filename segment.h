@@ -31,6 +31,8 @@ public:
     void addPixel(int pixelPos);
     int count();
     std::vector<std::pair<char, Numeric> > &getProperties();
+    void deepCopyTo(Segment *to);
+    void setPixels(std::vector<int> &pixels);
 };
 
 #endif // SEGMENT_H

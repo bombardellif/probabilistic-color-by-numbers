@@ -2,6 +2,14 @@
 
 ColorGroup::ColorGroup()
 {
+    this->image = NULL;
+    this->segments.clear();
+}
+
+ColorGroup::ColorGroup(QImage *image)
+{
+    this->image = image;
+    this->segments.clear();
 }
 
 void ColorGroup::addSegment(Segment &seg)
@@ -17,6 +25,21 @@ int ColorGroup::count()
 int ColorGroup::countMain()
 {
     return this->mainSegments.size();
+}
+
+Color ColorGroup::getColor()
+{
+    return this->color;
+}
+
+void ColorGroup::setColor(QColor &color)
+{
+    this->color = color;
+}
+
+QImage *ColorGroup::getImage()
+{
+    return this->image;
 }
 
 void ColorGroup::separateNoise(float noiseThreshold)
@@ -37,7 +60,7 @@ std::vector<std::pair<char, Numeric> > &ColorGroup::getProperties()
 
     this->properties.clear();
 
-    int k, m, i=0;
+    int k, m;
     // Calcula propriedades do color group (TODO)
 
     // Itera nos segmentos
@@ -50,11 +73,37 @@ std::vector<std::pair<char, Numeric> > &ColorGroup::getProperties()
         for (k=0, m=segProps.size(); k<m; k++) {
 
             this->properties.push_back(segProps[k]);
-            i++;
         }
     }
 
     return this->properties;
+}
+
+/**
+ * Dado um ponteiro para o ColorGroup destino, o metodo copia
+ * os mainSegements
+ * @brief ColorGroup::deepCopyTo
+ * @param to    ColorGroup destino da copia
+ */
+void ColorGroup::deepCopyTo(ColorGroup *to)
+{
+    Segment *seg = NULL;
+    int i, n;
+
+    // Copia para vetor segments
+    for (i=0, n=this->mainSegments.size(); i<n; i++) {
+        seg = new Segment(to->getImage());
+
+        this->mainSegments[i]->deepCopyTo(seg);
+
+        to->addSegment(*seg);
+    }
+    // Copia para vetor main segments
+    to->separateNoise(0);
+
+    if (seg != NULL) {
+        to->setColor(seg->getColor());
+    }
 }
 
 void ColorGroup::transformColor(QColor color) {
