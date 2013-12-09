@@ -14,6 +14,43 @@ ColorGroup::ColorGroup(QImage *image)
     this->segments.clear();
 }
 
+void ColorGroup::setTotalSegments(int num) {
+    this->totalSegments=num;
+}
+
+float ColorGroup::relativeNumberofSegments() {
+    return (float) this->count()/this->totalSegments;
+}
+
+// Segment size Statistics
+void ColorGroup::SegmentStatistics() {
+    int num_elements=0;
+    int tot=0;
+    int minimo=INF;
+    int iter,i;
+    int maximum=0;
+    for (i=0; i < this->count(); i++) {
+        iter=this->segments[i].count();
+        tot+=iter;
+        num_elements++;
+        minimo = std::min(iter , minimo);
+        maximum = std::max(iter,maximum);
+    }
+    this->mean_segs=(float)tot/num_elements;
+    this->max_num_elements=maximum;
+    this->min_num_elements=minimo;
+}
+
+float ColorGroup::getRelativeSize() {
+    int group_size=0;
+    int total_size;
+    for (int i=0; i < this->count(); i++) {
+        group_size+=this->segments[i].count();
+    }
+    total_size=this->image->height()*this->image->width();
+    return (float) group_size/total_size;
+}
+
 void ColorGroup::addSegment(Segment &seg)
 {
     this->segments.push_back(seg);
