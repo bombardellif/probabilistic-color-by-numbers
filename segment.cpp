@@ -72,20 +72,20 @@ void Segment::setPixels(std::vector<int> &pixels)
     this->pixels = pixels;
 }
 
-double Segment::score(std::vector<std::pair<char, AbsDistribution *> > &distribution, int &index)
+double Segment::score(std::vector<std::pair<char, Distribution*> > &distribution, int &index)
 {
     double prod=1, value;
 
     for (int i=0, n=this->properties.size(); i<n; i++) {
         if (this->properties[i].first == 'i') {
 
-            value = this->properties[i].second.i;
-            prod *= ((Distribution<int>*)distribution[index].second)->probability(value);
+            value = (double)this->properties[i].second.i;
+            prod *= ((Distribution*)distribution[index].second)->probability(value);
 
         } else if (this->properties[i].first == 'd') {
 
             value = this->properties[i].second.d;
-            prod *= ((Distribution<double>*)distribution[index].second)->probability(value);
+            prod *= ((Distribution*)distribution[index].second)->probability(value);
         }
         index++;
     }

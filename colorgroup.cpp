@@ -14,6 +14,11 @@ ColorGroup::ColorGroup(QImage *image)
     this->segments.clear();
 }
 
+ColorGroup::ColorGroup(QColor color)
+{
+    this->setColor(color);
+}
+
 void ColorGroup::addSegment(Segment &seg)
 {
     this->segments.push_back(seg);
@@ -110,11 +115,11 @@ void ColorGroup::deepCopyTo(ColorGroup *to)
     }
 }
 
-double ColorGroup::score(std::vector<std::pair<char, AbsDistribution *> > &distribution, int &index)
+double ColorGroup::score(std::vector<std::pair<char, Distribution *> > &distribution, int &index)
 {
     if (this->properties.size()) {
         double segmentSum=0,
-                weight = 1 / this->properties.size();
+                weight = 1.0f / this->properties.size();
 
         // Calcula propriedades do color group (TODO)
         double ownScore=0;
@@ -133,6 +138,7 @@ double ColorGroup::score(std::vector<std::pair<char, AbsDistribution *> > &distr
 }
 
 void ColorGroup::transformColor(QColor color) {
+    this->color = color;
     for (int i=0; i < this->segments.size(); i++)
         this->segments[i].setColor(color, true);
 }

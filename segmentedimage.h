@@ -20,13 +20,17 @@ public:
 
     SegmentedImage();
     SegmentedImage(const QString &fileName, const char *format = 0);
+    SegmentedImage(uchar *data, int width, int height, Format format, QImageCleanupFunction cleanupFunction = 0, void *cleanupInfo = 0);
+
+    bool operator<(const SegmentedImage &r) const;
 
     void segment();
     std::vector<std::pair<char, Numeric> > getProperties();
 
     std::map<int, ColorGroup*>& getMainColorGroups();
     void deepCopySegmentation(SegmentedImage from);
-    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution);
+    double score(std::vector<std::pair<char, Distribution*> > &distribution);
+    void randomlyColor();
 };
 
 #endif // SEGMENTEDIMAGE_H

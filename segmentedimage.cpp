@@ -2,6 +2,9 @@
 
 #include <iostream>
 #include <map>
+#include <cstdlib>
+#include <ctime>
+#include <climits>
 
 SegmentedImage::SegmentedImage()
 {
@@ -10,6 +13,16 @@ SegmentedImage::SegmentedImage()
 SegmentedImage::SegmentedImage(const QString &fileName, const char *format)
     : QImage(fileName, format)
 {
+}
+
+SegmentedImage::SegmentedImage(uchar *data, int width, int height, QImage::Format format, QImageCleanupFunction cleanupFunction, void *cleanupInfo):
+    QImage(data, width, height, format, cleanupFunction, cleanupInfo)
+{
+}
+
+bool SegmentedImage::operator<(const SegmentedImage &r) const
+{
+    return bits()[0] < r.bits()[0];
 }
 
 void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *notVisited)
@@ -98,7 +111,7 @@ void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *not
 
 void SegmentedImage::SeparateNoise()
 {
-    float noiseThreshold = (this->width() * this->height()) * 0.005;
+    float noiseThreshold = (this->width() * this->height()) * 0.001;
     std::map<int, ColorGroup>::iterator iter;
     //int r=0,g=0,b=0;
 
@@ -146,8 +159,9 @@ void SegmentedImage::segment()
 
             this->labelSegment(pixels, i, seg, notVisited);
 
-            if (!this->colorGroups.count(seg.getColor().rgb()))
-                this->colorGroups[seg.getColor().rgb()] = ColorGroup();
+            if (!this->colorGroups.count(seg.getColor().rgb())) {
+                this->colorGroups[seg.getColor().rgb()] = ColorGroup(QColor(seg.getColor()));
+            }
 
             this->colorGroups[seg.getColor().rgb()].addSegment(seg);
             /*
@@ -202,6 +216,7 @@ void SegmentedImage::deepCopySegmentation(SegmentedImage from)
     std::map<int, ColorGroup*> &cgFrom = from.getMainColorGroups();
     std::map<int, ColorGroup*>::iterator iterCgFrom;
     ColorGroup *cgTo;
+    int color;
 
     this->colorGroups.clear();
     this->mainColorGroups.clear();
@@ -211,19 +226,34 @@ void SegmentedImage::deepCopySegmentation(SegmentedImage from)
 
         iterCgFrom->second->deepCopyTo(cgTo);
 
-        this->colorGroups[cgTo->getColor().rgb()] = *cgTo;
-        this->mainColorGroups[cgTo->getColor().rgb()] = &this->colorGroups[cgTo->getColor().rgb()];
+        color = iterCgFrom->second->getColor().rgb();
+        this->colorGroups[color] = *cgTo;
+        this->mainColorGroups[color] = &this->colorGroups[color];
     }
 }
 
-double SegmentedImage::score(std::vector<std::pair<char, AbsDistribution *> > &distribution)
+double SegmentedImage::score(std::vector<std::pair<char, Distribution *> > &distribution)
 {
+    std::map<int, ColorGroup*>::iterator iter;
     double prod = 1;
     int index = 0;
 
-    for (int i=0, n=this->mainColorGroups.size(); i<n; i++) {
-        prod *= this->mainColorGroups[i]->score(distribution, index);
+    for (iter = this->mainColorGroups.begin(); iter!=this->mainColorGroups.end(); iter++) {
+        prod *= iter->second->score(distribution, index);
     }
 
     return prod;
+}
+
+void SegmentedImage::randomlyColor()
+{
+    int randomColor;
+    std::srand(std::time(NULL));
+
+    std::map<int, ColorGroup*>::iterator iter;
+    for (iter=this->mainColorGroups.begin(); iter!=this->mainColorGroups.end(); iter++) {
+
+        randomColor = (int)(std::rand() % (INT_MAX));
+        iter->second->transformColor(QColor(randomColor));
+    }
 }

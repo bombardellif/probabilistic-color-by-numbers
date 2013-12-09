@@ -2,38 +2,22 @@
 #define DISTRIBUTION_H
 
 #include <vector>
+#include <map>
+#include <algorithm>
 
-class AbsDistribution { };
-
-template <class T>
-class Distribution: public AbsDistribution
+class Distribution
 {
 private:
-    std::vector<T> data;
+    std::vector<double> data;
+    std::map<double, int> frequency;
+    bool sorted;
+    int count;
 
 public:
     Distribution();
 
-    void add(T x);
-    double probability(T x);
+    void add(double x);
+    double probability(double x);
 };
-
-template <class T>
-Distribution<T>::Distribution()
-{
-    this->data.clear();
-}
-
-template <class T>
-void Distribution<T>::add(T x)
-{
-    this->data.push_back(x);
-}
-
-template <class T>
-double Distribution<T>::probability(T x)
-{
-
-}
 
 #endif // DISTRIBUTION_H

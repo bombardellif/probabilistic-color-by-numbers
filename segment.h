@@ -35,7 +35,7 @@ public:
     void deepCopyTo(Segment *to);
     void setPixels(std::vector<int> &pixels);
 
-    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution, int &index);
+    double score(std::vector<std::pair<char, Distribution*> > &distribution, int &index);
 };
 
 #endif // SEGMENT_H

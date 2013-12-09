@@ -17,6 +17,7 @@ private:
 public:
     ColorGroup();
     ColorGroup(QImage *image);
+    ColorGroup(QColor color);
 
     void addSegment(Segment &seg);
     void transformColor(QColor color);
@@ -29,7 +30,7 @@ public:
     std::vector<std::pair<char, Numeric> > &getProperties();
     void deepCopyTo(ColorGroup *to);
 
-    double score(std::vector<std::pair<char, AbsDistribution*> > &distribution, int &index);
+    double score(std::vector<std::pair<char, Distribution*> > &distribution, int &index);
 };
 
 #endif // COLORGROUP_H
