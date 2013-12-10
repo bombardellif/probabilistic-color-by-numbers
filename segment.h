@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <QImage>
+#include <cmath>
 #include "color.h"
 #include "distribution.h"
 
@@ -21,13 +22,16 @@ private:
     Color color;
     std::vector<std::pair<char, Numeric> >properties;
 
-    double relativeSize();
 public:
     Segment();
     Segment(QImage *image);
     Segment(QColor color, QImage *image);
-
+    int getPositionX(int pixel);
+    int getPositionY(int pixel);
     Color& getColor();
+    float getRelativeSize();
+	float Centrality();
+	float Elongation();
     void setColor(QColor color, bool colorPixels=false);
     void addPixel(int pixelPos);
     int count();

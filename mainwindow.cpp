@@ -13,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // DEBUG
-    std::vector<std::pair<double, SegmentedImage> > topImgs;
+    std::vector<std::pair<double, SegmentedImage*> > topImgs;
 
-    SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1198080_t.png");//1537398_t.png");
+    SegmentedImage segImg("../Probabilistic-Color-By-Numbers/data/1198080_a0.png");//1537398_t.png");
     segImg.segment();
 
     StatisticsCollector sc;
@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ss << "../Probabilistic-Color-By-Numbers/data/suggestions/random_" << i << '_' << topImgs[i].first << ".png";
         std::cout << ss.str().c_str() << std::endl;
 
-        topImgs[i].second.save(QString(ss.str().c_str()));
+        topImgs[i].second->save(QString(ss.str().c_str()));
     }
 
 }

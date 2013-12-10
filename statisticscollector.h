@@ -19,7 +19,7 @@ public:
     StatisticsCollector();
 
     void collectData(std::string directory);
-    std::vector<std::pair<double, SegmentedImage> > sample(int numOfSamples, SegmentedImage &templateImg);
+    std::vector<std::pair<double, SegmentedImage*> > sample(int numOfSamples, SegmentedImage &templateImg);
 };
 
 #endif // STATISTICSCOLLECTOR_H

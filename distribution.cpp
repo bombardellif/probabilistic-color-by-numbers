@@ -34,7 +34,7 @@ double Distribution::probability(double x)
 
     // Se elemento encontrado for igual ao procurado ou for o ultimo ou o primeiro, retorna a probabilidade desse
     if ((*elementGtOrEq == x) || (*elementGtOrEq == this->data.back()) || (*elementGtOrEq == this->data.front())) {
-        return ((double)this->frequency[x]) / this->count;
+        return ((double)this->frequency[*elementGtOrEq]) / this->count;
     }
     // Senao, faz uma interpolaçao entre este e o anterior, pois o procurado esta entre os dois
     else {

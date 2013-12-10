@@ -33,7 +33,6 @@ void SegmentedImage::labelSegment(uint *pixels, int pos, Segment &seg, bool *not
         height = this->height();
     std::map<int, short> freq;
     std::map<int, short>::iterator freqIter;
-
     // INICIO: vetor das posiçoes vizinhas do pixel que podem ser acessada
     int delta[9];
     bool notFirstRow = pos >= width,
@@ -150,7 +149,7 @@ void SegmentedImage::segment()
     Segment seg;
 
     memset(&notVisited, true, n);
-
+    int num_segments=0;
     //QImage debug(this->width(), this->height(), QImage::Format_RGB32);
     for (int i=0; i<n; i++) {
 
@@ -159,10 +158,13 @@ void SegmentedImage::segment()
 
             this->labelSegment(pixels, i, seg, notVisited);
 
-            if (!this->colorGroups.count(seg.getColor().rgb())) {
+            /*if (!this->colorGroups.count(seg.getColor().rgb())) {
                 this->colorGroups[seg.getColor().rgb()] = ColorGroup(QColor(seg.getColor()));
-            }
+            }*/
 
+            if (!this->colorGroups.count(seg.getColor().rgb()))
+                this->colorGroups[seg.getColor().rgb()] = ColorGroup(this, QColor(seg.getColor()));
+            num_segments++;
             this->colorGroups[seg.getColor().rgb()].addSegment(seg);
             /*
             if (seg.getColor().rgb() == 0xff333333){
@@ -170,6 +172,22 @@ void SegmentedImage::segment()
             }*/
         }
     }
+    std::map<int, ColorGroup>::iterator iter;
+    for (iter = this->colorGroups.begin(); iter != this->colorGroups.end(); iter++) {
+        iter->second.setTotalSegments(num_segments);
+        /* std::cout << iter->second.getRelativeSize();
+        iter->second.SegmentStatistics();
+        std::cout << iter->second.max_num_elements << std::endl;
+        std::cout << iter->second.min_num_elements << std::endl;
+        std::cout << iter->second.mean_segs << std::endl;
+        std::cout << iter->second.relativeNumberofSegments() << std::endl;
+        */
+
+    }
+    /*std::vector<Segment> iter_seg = ;
+    for (int i = 0; i < iter->second.segments.size(); i++) {
+        std::cout << iter->second.segments[i].Elongation();
+    }*/
 
     // Separa os segmentos que representam menos de 0,05% da area da imagem
     this->SeparateNoise();
@@ -230,6 +248,7 @@ void SegmentedImage::deepCopySegmentation(SegmentedImage from)
         this->colorGroups[color] = *cgTo;
         this->mainColorGroups[color] = &this->colorGroups[color];
     }
+
 }
 
 double SegmentedImage::score(std::vector<std::pair<char, Distribution *> > &distribution)

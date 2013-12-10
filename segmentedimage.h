@@ -1,6 +1,7 @@
 #ifndef SEGMENTEDIMAGE_H
 #define SEGMENTEDIMAGE_H
 
+#include <iostream>
 #include <QImage>
 #include <map>
 #include <vector>

@@ -2,10 +2,6 @@
 
 #include <cmath>
 
-double Segment::relativeSize()
-{
-    return 6.9;// DEBUG
-}
 
 Segment::Segment()
 {
@@ -27,6 +23,58 @@ Segment::Segment(QColor color, QImage *image)
 Color& Segment::getColor()
 {
     return this->color;
+}
+
+int Segment::getPositionX(int pixel) {
+    int w;
+    w=this->image->width();
+    return (pixel % w);
+}
+
+int Segment::getPositionY(int pixel) {
+    return std::floor(pixel/this->image->height());
+}
+
+float Segment::getRelativeSize() {
+    int tam_img = this->image->width()*this->image->height();
+    return (float) this->count()/tam_img;
+}
+
+float Segment::Elongation() {
+    //calculate bounding box
+    float x,y;
+    float left = (float) this->image->width() - 1;
+    float down = 0;
+    float right = 0;
+    float up = (float) this->image->height() - 1;
+    for (int i=0; i < this->count(); i++) {
+        int pix=this->pixels[i];
+        x = (float) getPositionX(pix);
+        y = (float) getPositionY(pix);
+        left = std::min(left,x);
+	right = std::max(right,x);
+	up = std::min(up,y);
+	down = std::max(down,y);
+    }
+
+    return 1-(right-left)/(up-down);
+}
+
+float Segment::Centrality() {
+    int iter;
+    float x,y;
+    int half_pixels = this->count()/2;
+    float distance=0;
+    for (iter=0; iter < half_pixels; iter++) { 
+	// pega o pixel que esta na metade do caminho
+    }
+	int pix=this->pixels[iter];
+        y = (float) getPositionY(pix);
+	x = (float) getPositionX(pix);
+    float center_image_x = (float) this->image->width()/2;
+    float center_image_y = (float) this->image->height()/2;
+    distance=std::sqrt((x-center_image_x)*(x-center_image_x)+(y-center_image_y)*(y-center_image_y)); // distancia para o centro da imagem
+    return distance;
 }
 
 void Segment::setColor(QColor color, bool colorPixels)
@@ -56,7 +104,15 @@ std::vector<std::pair<char, Numeric> > &Segment::getProperties()
 
     this->properties.push_back(std::pair<char, Numeric>());
     this->properties[0].first = 'd';
-    this->properties[0].second.d = this->relativeSize();
+    this->properties[0].second.d = (double)this->getRelativeSize();
+
+    this->properties.push_back(std::pair<char, Numeric>());
+    this->properties[1].first = 'd';
+    this->properties[1].second.d = (double)this->Elongation();
+
+    this->properties.push_back(std::pair<char, Numeric>());
+    this->properties[2].first = 'd';
+    this->properties[2].second.d = (double)this->Centrality();
 
     return this->properties;
 }

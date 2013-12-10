@@ -15,7 +15,7 @@
 #include "distribution.h"
 #include "segment.h"
 
-int StatisticsCollector::K = 10;
+int StatisticsCollector::K = 100;
 
 int StatisticsCollector::getDir(std::string dir, std::vector<std::string> &files)
 {
@@ -49,6 +49,7 @@ void StatisticsCollector::collectData(std::string directory)
 
     if (!this->getDir(directory, files)) {
 
+        std::sort(files.begin(), files.end());
         this->distributions.clear();
 
         bool first=true;
@@ -112,41 +113,45 @@ void StatisticsCollector::collectData(std::string directory)
     }
 }
 
-std::vector<std::pair<double, SegmentedImage> > StatisticsCollector::sample(int numOfSamples, SegmentedImage &templateImg)
+std::vector<std::pair<double, SegmentedImage*> > StatisticsCollector::sample(int numOfSamples, SegmentedImage &templateImg)
 {
-    std::vector<std::pair<double, SegmentedImage> > result;
-    std::priority_queue<std::pair<double, SegmentedImage> > topProb;
+    std::vector<std::pair<double, SegmentedImage*> > result;
+    std::priority_queue<std::pair<double, SegmentedImage*> > topProb;
+    uchar *buffer;
 
-    SegmentedImage img(templateImg.bits(), templateImg.width(), templateImg.height(), templateImg.format());
-    img.deepCopySegmentation(templateImg);
-    img.randomlyColor();
-    img.getProperties();
+    SegmentedImage *img = new SegmentedImage(templateImg.bits(), templateImg.width(), templateImg.height(), templateImg.format());
+    img->deepCopySegmentation(templateImg);
+    img->randomlyColor();
+    img->getProperties();
 
     int i;
     double prob, ratio, lastProd;
 
-    lastProd = this->scoresDistribution.probability(img.score(this->distributions));
+    lastProd = this->scoresDistribution.probability(img->score(this->distributions));
 
     std::srand(std::time(NULL));
 
     // itera K vezes paraa realisar a amostragem da distribuiçao
     for (i=0; i<StatisticsCollector::K; i++) {
-        // Copia o template para uma nova imagem e colore randomicamente
-        img = SegmentedImage(templateImg.bits(), templateImg.width(), templateImg.height(), templateImg.format());
-        img.deepCopySegmentation(templateImg);
+        sleep(1);
 
-        img.randomlyColor();
-        img.getProperties();
+        // Copia o template para uma nova imagem e colore randomicamente
+        buffer = new uchar[templateImg.byteCount()];
+        memcpy(buffer, templateImg.bits(), templateImg.byteCount());
+        img = new SegmentedImage(buffer, templateImg.width(), templateImg.height(), templateImg.format());
+        img->deepCopySegmentation(templateImg);
+
+        img->randomlyColor();
+        img->getProperties();
 
         // calcula a divisao da probabilidade de img pela probabilidade do ultimo elemento inserido
-        prob = this->scoresDistribution.probability(img.score(this->distributions));
+        prob = this->scoresDistribution.probability(img->score(this->distributions));
         ratio = prob
             / lastProd;
         // Adiciona ao resultado a imagem caso tenha mais probabilidade que a anterior
         if ((std::rand() / (float)INT_MAX) <= std::min(1.0, ratio)) {
 
-            topProb.push(std::pair<double, SegmentedImage>(prob, img));
-
+            topProb.push(std::pair<double, SegmentedImage*>(prob, img));
             lastProd = prob;
         }
 
